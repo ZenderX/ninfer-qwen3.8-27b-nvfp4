@@ -7,7 +7,9 @@ NINFER_REPO := https://github.com/Neroued/ninfer.git
 NINFER_REF := b88c0f6fc7e999f13eb2fcf7fc9105ed79a91868
 MODEL_REPO := neroued/Qwen3.8-27B-nvfp4-NInfer
 MODEL_FILE := qwen3_8_27b_nvfp4.ninfer
-MODEL_URL := https://huggingface.co/$(MODEL_REPO)/resolve/main/$(MODEL_FILE)
+# pins the v2 artifact matching MODEL_SHA256; upstream main moved to v3 on 2026-09-15
+MODEL_REV := 11dbbbbbc33db198afe2f02c9232c771ff7031be
+MODEL_URL := https://huggingface.co/$(MODEL_REPO)/resolve/$(MODEL_REV)/$(MODEL_FILE)
 MODEL_SHA256 := 552c374c685dce302603b95fbe940fb04243c0cd44c083efc644ad3d980d462c
 
 .PHONY: build serve stop setup clone model verify
@@ -20,6 +22,7 @@ build:
 
 serve:
 	@test -f "$(MODEL)" || { echo "Missing $(MODEL) - download it first."; exit 1; }
+	@mkdir -p logs
 	@docker rm --force $(CONTAINER) >/dev/null 2>&1 || true
 	trap 'docker rm --force $(CONTAINER) >/dev/null 2>&1; echo "Stopped $(CONTAINER)."' INT TERM; \
 	MSYS_NO_PATHCONV=1 docker run --rm \
@@ -27,12 +30,14 @@ serve:
 		--gpus '"device=0"' \
 		--publish 8080:8080 \
 		--volume "$(PWD)/models:/models:ro" \
+		--volume "$(PWD)/logs:/logs" \
 		$(IMAGE) \
-		ninfer-serve /models/qwen3_8_27b_nvfp4.ninfer \
+		bash -c 'set -o pipefail; ninfer-serve "$$@" 2>&1 | tee -a /logs/serve.log' _ \
+		/models/qwen3_8_27b_nvfp4.ninfer \
 		--model-id qwen3.8-27b-nvfp4 \
 		--host 0.0.0.0 \
-		--max-context 185000 \
-		--kv-capacity 185000 \
+		--max-context 165000 \
+		--kv-capacity 165000 \
 		--max-concurrency 2 \
 		--kv-dtype fp8 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
@@ -41,6 +46,7 @@ serve:
 		--top-p 0.95 \
 		--min-p 0.05 \
 		--presence-penalty 0 \
+		--preserve-thinking \
 		--vision
 
 stop:

@@ -1,4 +1,5 @@
 .claude/
 models/
 ninfer/
+logs/
 *.stackdump
