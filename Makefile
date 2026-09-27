@@ -26,21 +26,32 @@ serve:
 	@test -f "$(MODEL)" || { echo "Missing $(MODEL) - download it first."; exit 1; }
 	@mkdir -p logs
 	@docker rm --force $(CONTAINER) >/dev/null 2>&1 || true
-	trap 'docker rm --force $(CONTAINER) >/dev/null 2>&1; echo "Stopped $(CONTAINER)."' INT TERM; \
+# host trap is only a fallback (native Windows make may kill this shell first); the container itself exits when ninfer-serve exits or the attached stdin closes
+	trap 'docker rm --force $(CONTAINER) >/dev/null 2>&1; echo "Stopped $(CONTAINER)."' EXIT; \
+	trap 'exit 130' INT TERM; \
 	MSYS_NO_PATHCONV=1 docker run --rm \
 		--name $(CONTAINER) \
+		--init \
+		--env TINI_KILL_PROCESS_GROUP=1 \
+		--interactive \
 		--gpus '"device=0"' \
 		--publish 8080:8080 \
 		--volume "$(PWD)/models:/models:ro" \
 		--volume "$(PWD)/logs:/logs" \
 		$(IMAGE) \
-		bash -c 'set -o pipefail; ninfer-serve "$$@" 2>&1 | tee -a /logs/serve.log' _ \
+		bash -c 'set -o pipefail; trap : INT TERM; exec 3<&0; \
+			{ ninfer-serve "$$@" 2>&1 | tee -a /logs/serve.log; } & \
+			cat <&3 >/dev/null 3<&- & wd=$$!; exec 3<&-; \
+			wait -n -p done; st=$$?; [ "$$done" = "$$wd" ] && st=143; \
+			kill 0 2>/dev/null; wait; exit $$st' _ \
 		/$(MODEL) \
 		--model-id qwen3.8-27b-nvfp4 \
 		--host 0.0.0.0 \
 		--max-context 165000 \
 		--kv-capacity 165000 \
 		--max-concurrency 2 \
+		--pending-timeout-ms 2147483647 \
+		--max-pending-requests 64 \
 		--kv-dtype int8 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
 		--temperature 0.6 \
