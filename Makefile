@@ -41,12 +41,12 @@ serve:
 		--max-context 165000 \
 		--kv-capacity 165000 \
 		--max-concurrency 2 \
-		--kv-dtype fp8 \
+		--kv-dtype int8 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
-		--temperature 0.7 \
+		--temperature 0.6 \
 		--top-k 20 \
 		--top-p 0.95 \
-		--min-p 0.05 \
+		--min-p 0 \
 		--presence-penalty 0 \
 		--preserve-thinking \
 		--vision

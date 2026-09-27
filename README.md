@@ -99,7 +99,7 @@ Three things, all already configured in the `Makefile`:
 
 - **A 4-bit model (NVFP4).** Smaller numbers mean less memory traffic, which is what limits
   speed here. Quality loss is small.
-- **A compressed memory cache (fp8).** The conversation history is stored at reduced precision,
+- **A compressed memory cache (int8).** The conversation history is stored at reduced precision,
   leaving room for very long chats — 165,000 tokens here.
 - **Speculative decoding (DFlash2).** A small fast model drafts several tokens ahead and the
   big model checks them in one pass. This is why predictable text is so much faster than
