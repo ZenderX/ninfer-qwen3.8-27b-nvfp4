@@ -1,16 +1,18 @@
-MODEL := models/qwen3_8_27b_nvfp4.ninfer
-IMAGE := ninfer:local
+# versioned name: upstream uses the same file name for v2 and v3, so v3 must not overwrite the v2 file
+MODEL := models/qwen3_8_27b_nvfp4.v3-f0b43ad.ninfer
 CONTAINER := ninfer-serve
 
 NINFER_REPO := https://github.com/Neroued/ninfer.git
 # pinned ninfer commit
-NINFER_REF := b88c0f6fc7e999f13eb2fcf7fc9105ed79a91868
+NINFER_REF := e31bc99b13f517c8aae70b997b7c4a49b4dcdc5d
+# must follow NINFER_REF so a command-line NINFER_REF override also changes the tag
+IMAGE := ninfer:$(shell printf '%.8s' '$(NINFER_REF)')
 MODEL_REPO := neroued/Qwen3.8-27B-nvfp4-NInfer
 MODEL_FILE := qwen3_8_27b_nvfp4.ninfer
-# pins the v2 artifact matching MODEL_SHA256; upstream main moved to v3 on 2026-09-15
-MODEL_REV := 11dbbbbbc33db198afe2f02c9232c771ff7031be
+# pins the v3 artifact matching MODEL_SHA256
+MODEL_REV := f0b43ad436b9fa8142c6ed6647c470a6fe409484
 MODEL_URL := https://huggingface.co/$(MODEL_REPO)/resolve/$(MODEL_REV)/$(MODEL_FILE)
-MODEL_SHA256 := 552c374c685dce302603b95fbe940fb04243c0cd44c083efc644ad3d980d462c
+MODEL_SHA256 := 74d2c57145e6ff11d1d2faa79594477f9bc903a611af1fb20218189fbbb77d82
 
 .PHONY: build serve stop setup clone model verify
 
@@ -33,7 +35,7 @@ serve:
 		--volume "$(PWD)/logs:/logs" \
 		$(IMAGE) \
 		bash -c 'set -o pipefail; ninfer-serve "$$@" 2>&1 | tee -a /logs/serve.log' _ \
-		/models/qwen3_8_27b_nvfp4.ninfer \
+		/$(MODEL) \
 		--model-id qwen3.8-27b-nvfp4 \
 		--host 0.0.0.0 \
 		--max-context 165000 \
