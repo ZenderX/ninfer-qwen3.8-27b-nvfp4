@@ -10,10 +10,12 @@ Everything runs in Docker, so you are not installing a compiler or CUDA on your 
 
 ## Speed
 
-Around **200 tokens/sec**, though it depends on what you ask for:
+Around **200 tokens/sec** when it generates, though it depends on what you ask for.
+Reading your prompt is much faster:
 
 | Kind of task | Tokens/sec |
 |---|---|
+| Prefill (reading a ~10k-token prompt) | ~9,100 |
 | Structured output (JSON, etc.) | ~267 |
 | Code | ~191 |
 | Translation | ~182 |
@@ -98,7 +100,7 @@ Three things, all already configured in the `Makefile`:
 - **A 4-bit model (NVFP4).** Smaller numbers mean less memory traffic, which is what limits
   speed here. Quality loss is small.
 - **A compressed memory cache (fp8).** The conversation history is stored at reduced precision,
-  leaving room for very long chats — 185,000 tokens here.
+  leaving room for very long chats — 165,000 tokens here.
 - **Speculative decoding (DFlash2).** A small fast model drafts several tokens ahead and the
   big model checks them in one pass. This is why predictable text is so much faster than
   creative writing: easy guesses get accepted, surprising ones do not.
