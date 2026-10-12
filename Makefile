@@ -31,6 +31,7 @@ serve:
 	trap 'exit 130' INT TERM; \
 	MSYS_NO_PATHCONV=1 docker run --rm \
 		--name $(CONTAINER) \
+		--network ninfer-net \
 		--init \
 		--env TINI_KILL_PROCESS_GROUP=1 \
 		--interactive \
