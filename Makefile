@@ -53,12 +53,13 @@ serve:
 		--max-concurrency 2 \
 		--pending-timeout-ms 2147483647 \
 		--max-pending-requests 64 \
-		--kv-dtype int8 \
+		--kv-dtype fp8 \
+		--device-state-slots 2 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
-		--temperature 0.6 \
+		--temperature 1.0 \
 		--top-k 20 \
 		--top-p 0.95 \
-		--min-p 0 \
+		--min-p 0.05 \
 		--presence-penalty 0 \
 		--preserve-thinking \
 		--vision
