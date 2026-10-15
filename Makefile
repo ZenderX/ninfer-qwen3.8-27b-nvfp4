@@ -54,7 +54,6 @@ serve:
 		--pending-timeout-ms 2147483647 \
 		--max-pending-requests 64 \
 		--kv-dtype fp8 \
-		--device-state-slots 2 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
 		--temperature 1.0 \
 		--top-k 20 \
