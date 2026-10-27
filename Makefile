@@ -48,11 +48,12 @@ serve:
 		/$(MODEL) \
 		--model-id qwen3.8-27b-nvfp4 \
 		--host 0.0.0.0 \
-		--max-context 165000 \
-		--kv-capacity 165000 \
+		--max-context 150000 \
+		--kv-capacity 150000 \
 		--max-concurrency 2 \
-		--pending-timeout-ms 2147483647 \
 		--max-pending-requests 64 \
+		--default-thinking-budget 65535 \
+		--pending-timeout-ms 2147483647 \
 		--kv-dtype fp8 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
 		--temperature 1.0 \
@@ -99,3 +100,29 @@ verify:
 		echo "$(MODEL) checksum MISMATCH (expected $(MODEL_SHA256))."; \
 		exit 1; \
 	fi
+
+# 1. The High-Speed Developer (Coding, Reasoning, & Tool Calling)
+# Optimized for Qwen3.8's native agentic and thinking features while maximizing DFlash2 validation rates
+# --temperature 0.4 \
+# --top-k 0 \
+# --top-p 0.90 \
+# --min-p 0.12 \
+# --presence-penalty 0 \
+# 
+# 
+# 2. The Native Benchmark Default (General Purpose & Chat)
+# The official calibration used by NVIDIA and Unsloth when establishing the Qwen3.8 NVFP4 reference sheets.
+# --temperature 1.0 \
+# --top-k 0 \
+# --top-p 0.95 \
+# --min-p 0.05 \
+# --presence-penalty 0 \
+# 
+# 
+# 3. The Uncapped Creative (Roleplay & Writing)
+# If you are running long-context generation and want maximum linguistic vocabulary variance.
+# --temperature 1.15 \
+# --top-k 0 \
+# --top-p 1.0 \
+# --min-p 0.02 \
+# --presence-penalty 0.1 \
