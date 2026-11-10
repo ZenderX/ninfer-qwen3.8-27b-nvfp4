@@ -52,12 +52,12 @@ serve:
 		--kv-capacity 150000 \
 		--max-concurrency 2 \
 		--max-pending-requests 64 \
-		--default-thinking-budget 65535 \
+		--default-thinking-budget 40960 \
 		--pending-timeout-ms 2147483647 \
 		--kv-dtype fp8 \
 		--spec dflash2 --draft-tokens 7 --lm-head-draft \
-		--temperature 1.0 \
-		--top-k 20 \
+		--temperature 0.7 \
+		--top-k 0 \
 		--top-p 0.95 \
 		--min-p 0.05 \
 		--presence-penalty 0 \
